@@ -1,4 +1,4 @@
-# lutter_training_course
+# birthday card
 
 the first task in learning flutter 
 
