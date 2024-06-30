@@ -1,6 +1,6 @@
-# lutter_training_course
+# personal card
 
-A new Flutter project.
+A new Flutter task.
 
 ## Getting Started
 
