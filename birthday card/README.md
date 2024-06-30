@@ -1,6 +1,7 @@
-# lutter_training_course
+# birthday card
 
 the first task in learning flutter 
+![WhatsApp Image 2024-06-30 at 00 48 15_014e5384](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/a44e583b-dcf0-45ad-915b-37772ebad144)
 
 ## Getting Started
 
