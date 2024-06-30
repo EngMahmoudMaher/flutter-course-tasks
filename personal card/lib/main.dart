@@ -19,93 +19,92 @@ class _BirthDayCardState extends State<BirthDayCard> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff274460),
-      body: SingleChildScrollView(scrollDirection: Axis.vertical,
+      body: SingleChildScrollView(
+        // Removed unnecessary scrollDirection property as the default is vertical
         child: Column(
           children: [
-            const SizedBox(height: 70),
-            ClipRect(
-              child: Container(
+
+            // Improved profile image presentation
+            Center( // Center the avatar for better visual balance
+              child: Container(margin:
+              const EdgeInsets.only(top: 100),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
                   border: Border.all(
                     color: Colors.white,
-                    width: 2, // Adjust the border width as needed
+                    width: 2,
                   ),
                 ),
-                child: const Center(
-                  child: CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/stech.png'),
-                    backgroundColor: Color(0xff274460),
-                    foregroundColor: Colors.white,
-                    radius: 160, // Adjust the radius as needed
-                    // You can add a child widget here if you want, like an icon or image
-                  ),
+                child: const CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/stech.png'),
+                  backgroundColor: Color(0xff274460),
+                  radius: 90, // Adjusted radius for a more balanced look
                 ),
               ),
             ),
-            const SizedBox(
-              height: 30,
-            ),
-            const Text("Mahmoud Maher",
+
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Text(
+                "Mahmoud Maher",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'lemon',
-                )),
-            const SizedBox(
-              height: 10,
+                ),
+              ),
             ),
-            const Text("Flutter Developer",
+            const Padding(
+              padding: EdgeInsets.only(top: 20,bottom: 100),
+              child: Text(
+                "Flutter Developer",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontFamily: 'pacifico',
-                )),
-            const SizedBox(
-              height: 90,
-            ),
-            Container(
-              width: 410,
-              height: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.white,
-              ),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  hintText: '(+20)123456789',
-                  hintStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                  prefixIcon: Icon(Icons.phone, color: Colors.black),
                 ),
               ),
             ),
-            const SizedBox(
-              height: 30,
+
+            // Extracted common input field style for reusability
+            _buildInputField(
+              hintText: '(+20)123456789',
+              prefixIcon: Icons.phone,
             ),
-            Container(
-              width: 410,
-              height: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.white,
-              ),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  hintText: 'learningjourney@stech',
-                  hintStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                  prefixIcon: Icon(Icons.email_sharp, color: Colors.black),
-                ),
-              ),
+
+            _buildInputField(
+              hintText: 'learningjourney@stech',
+              prefixIcon: Icons.email_sharp,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build input fields with consistent styling
+  Widget _buildInputField({
+    required String hintText,
+    required IconData prefixIcon,
+  }) {
+    return Container(
+      margin:   const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      width: 410,
+      height: 48,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+      ),
+      child: TextFormField(
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: const TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          prefixIcon: Icon(prefixIcon, color: Colors.black),
         ),
       ),
     );
