@@ -2,7 +2,13 @@
 
 # Japanese Learning App
 
-![App Screenshot](![Screenshot 2024-07-07 234000](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/53f7364e-67f1-4d25-8a8d-f78ffcb71a8a))
+![App Screenshot](![Screenshot 2024-07-07 234000](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/53f7364e-67f1-4d25-8a8d-f78ffcb71a8a)![image](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/b83df8f2-5832-483b-9683-d677468e0255)
+![Screenshot 2024-07-07 234000](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/53f7364e-67f1-4d25-8a8d-f78ffcb71a8a)
+![image](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/4a44012d-db22-4347-a6c7-b7c650d8eca2)
+![image](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/a993b596-eac8-4a76-a835-f03fe448bc15)
+![image](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/f27e8454-7ff5-4f55-8c82-fccbba0b4f76)
+![image](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/202263df-00a3-45f8-9ea6-12f23c0e1d02)
+)
 
 ## Overview
 
