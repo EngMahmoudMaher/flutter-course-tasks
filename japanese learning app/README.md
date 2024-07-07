@@ -2,7 +2,7 @@
 
 # Japanese Learning App
 
-![App Screenshot](screenshots/app_screenshot.png)
+![App Screenshot](![Screenshot 2024-07-07 234000](https://github.com/EngMahmoudMaher/flutter-course-tasks/assets/173734058/53f7364e-67f1-4d25-8a8d-f78ffcb71a8a))
 
 ## Overview
 
@@ -32,6 +32,7 @@ To get started with the Japanese Learning App, follow these steps:
    ```bash
    git clone https://github.com/EngMahmoudMaher/flutter-course-tasks.git
    ```
+
 
 2. **Navigate to the Project Directory**:
 
