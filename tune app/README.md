@@ -10,8 +10,8 @@ This is a simple Flutter app that plays audio files when different colored conta
 
 ## Screenshots
 
-![Screenshot](![image](https://github.com/user-attachments/assets/44e29413-d0dc-44cd-8713-877e252a558f)
-) <!-- Add a screenshot of your app here -->
+![image](https://github.com/user-attachments/assets/63209657-46c0-4158-bf5a-98fe493bf1e9)
+
 
 ## Getting Started
 
