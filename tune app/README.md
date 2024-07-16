@@ -23,11 +23,11 @@ This is a simple Flutter app that plays audio files when different colored conta
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/tune_player_app.git
+    git clone https://github.com/EngMahmoudMaher/tune app.git
     ```
 2. Navigate to the project directory:
     ```sh
-    cd tune_player_app
+    cd tune app
     ```
 3. Install the dependencies:
     ```sh
