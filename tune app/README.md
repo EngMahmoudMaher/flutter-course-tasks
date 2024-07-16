@@ -1,16 +1,41 @@
-# advansed_learning
+# Tune Player App
 
-A new Flutter project.
+This is a simple Flutter app that plays audio files when different colored containers are tapped. Each container plays a unique tune.
+
+## Features
+
+- Play different audio files by tapping on colored containers.
+- Responsive layout with a dynamic list of tunes.
+- Easy to extend with more tunes and features.
+
+## Screenshots
+
+![Screenshot](![image](https://github.com/user-attachments/assets/44e29413-d0dc-44cd-8713-877e252a558f)
+) <!-- Add a screenshot of your app here -->
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+- [Flutter](https://flutter.dev/docs/get-started/install) installed on your machine.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/yourusername/tune_player_app.git
+    ```
+2. Navigate to the project directory:
+    ```sh
+    cd tune_player_app
+    ```
+3. Install the dependencies:
+    ```sh
+    flutter pub get
+    ```
+
+### Running the App
+
+Run the app on an emulator or a physical device:
+```sh
+flutter run
