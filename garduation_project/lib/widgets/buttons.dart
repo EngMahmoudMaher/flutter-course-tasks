@@ -31,7 +31,7 @@ class SignUpButton extends StatelessWidget {
             // Navigate to HomePage after successful signup
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()), // Replace HomePage with your actual home screen
+              MaterialPageRoute(builder: (context) => const HomePage()), // Replace HomePage with your actual home screen
             );
 
             // Optional: Show a success message
