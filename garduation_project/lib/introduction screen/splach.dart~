@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:garduation_project/introduction%20screen/intro.dart';
 
-import '../auth/sign in/signin.dart';
+import '../auth/sign in/sign in page.dart';
+import '../auth/sign in/signin.dart'; // Import your Onboarding page
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

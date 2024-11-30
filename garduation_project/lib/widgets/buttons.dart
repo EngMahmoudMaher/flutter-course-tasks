@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-import '../app screens/home page.dart';
-
+import 'package:garduation_project/app%20screens/homepage.dart';
 
 class SignUpButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -23,7 +21,8 @@ class SignUpButton extends StatelessWidget {
         if (formKey.currentState!.validate()) {
           try {
             // Firebase signup logic
-            UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            UserCredential userCredential =
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
               email: emailController.text.trim(),
               password: passwordController.text.trim(),
             );
@@ -31,7 +30,9 @@ class SignUpButton extends StatelessWidget {
             // Navigate to HomePage after successful signup
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomePage()), // Replace HomePage with your actual home screen
+              MaterialPageRoute(
+                  builder: (context) =>
+                      const HomePage()), // Replace HomePage with your actual home screen
             );
 
             // Optional: Show a success message

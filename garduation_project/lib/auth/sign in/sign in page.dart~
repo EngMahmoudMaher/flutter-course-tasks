@@ -1,0 +1,72 @@
+import 'package:flutter/material.dart';
+import 'signin_form.dart';
+import 'social_signin_buttons.dart';
+
+class SigninPage extends StatelessWidget {
+  const SigninPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    double widthSize = MediaQuery.of(context).size.width;
+    double heightSize = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Left Ellipse
+            Positioned(
+              left: 0,
+              top: 50,
+              child: Container(
+                width: widthSize / 3.1,
+                height: heightSize / 1.2,
+                child: Image.asset(
+                  'assets/imag/iteams/Ellipse 2-1.png',
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            // Right Ellipse
+            Positioned(
+              right: 0,
+              top: 50,
+              child: Container(
+                width: widthSize / 3.1,
+                height: heightSize / 1.2,
+                child: Image.asset(
+                  'assets/imag/iteams/Ellipse 2.png',
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            // Bottom Ellipse
+            Positioned(
+              bottom: 0,
+              left: 0,
+              child: Container(
+                width: widthSize,
+                height: heightSize / 10,
+                child: Image.asset(
+                  'assets/imag/iteams/Bottom_Ellipse.svg',
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            // Main Content
+            Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: const [
+                    SigninForm(), // Email and password sign-in form
+                    SocialSigninButtons(), // Social media sign-in buttons
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

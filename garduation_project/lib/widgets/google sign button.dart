@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-import '../app screens/home page.dart';
-
+import '../app screens/homepage.dart';
 
 class GoogleSignUpButton extends StatelessWidget {
   const GoogleSignUpButton({Key? key}) : super(key: key);
@@ -16,18 +14,21 @@ class GoogleSignUpButton extends StatelessWidget {
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
 
       // Navigate to HomePage after successful sign-in
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()), // Replace with your HomePage
+        MaterialPageRoute(
+            builder: (context) => HomePage()), // Replace with your HomePage
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,7 +53,8 @@ class GoogleSignUpButton extends StatelessWidget {
         backgroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 120),
       ),
-      child: const Text('Google', style: TextStyle(fontSize: 18, color: Colors.redAccent)),
+      child: const Text('Google',
+          style: TextStyle(fontSize: 18, color: Colors.redAccent)),
     );
   }
 }

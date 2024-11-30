@@ -43,11 +43,21 @@ dependencies:
   shared_preferences: ^2.3.3
   firebase_database: ^11.1.6
   percent_indicator: ^4.2.4
+  flutter_svg: ^2.0.15
+  provider: ^6.1.2
+  flutter_joystick: ^0.2.1
+  connectivity_plus: ^6.1.0
+  flutter_launcher_icons: ^0.14.1
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/imag/logo/mobicare.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -70,6 +80,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - assets/imag/
+     - assets/imag/intro/
+     - assets/imag/logo/
+     - assets/imag/iteams/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
