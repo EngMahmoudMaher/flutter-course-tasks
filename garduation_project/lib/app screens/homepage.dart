@@ -1,26 +1,67 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:garduation_project/app%20screens/directions.dart';
+import 'package:garduation_project/colors/maincolors.dart';
+import 'package:garduation_project/provider/appstate.dart';
 import 'package:garduation_project/utils/streamdata_from_firebase.dart';
 import 'package:garduation_project/widgets/ui_items/buttongroup.dart';
+import 'package:garduation_project/widgets/ui_items/custom_navigationbar.dart';
 import 'package:garduation_project/widgets/ui_items/glowing_circle.dart';
 import 'package:garduation_project/widgets/ui_items/glowing_rectangle.dart';
 import 'package:garduation_project/widgets/ui_items/gradient_text.dart';
 import 'package:garduation_project/widgets/ui_items/gradientcircleanimation.dart';
+import 'package:provider/provider.dart';
 
 bool ButtonState = false;
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Future<List<Color>> colorState() async {
+    final appState = Provider.of<AppState>(context);
+    double tempState =
+        await appState.TempState; // Ensure TempState returns a non-null value
+    Color color1;
+    Color color2;
+
+    if (tempState < 30) {
+      color1 = Colors.blue[800]!.withOpacity(0.5);
+      color2 = Colors.blue[300]!.withOpacity(0.5);
+    } else if (tempState >= 30 && tempState < 40) {
+      color1 = ProjectColors.mainColor.withOpacity(0.5);
+      color2 = ProjectColors.secondaryColor.withOpacity(0.5);
+    } else if (tempState >= 40 && tempState < 50) {
+      color1 = Colors.red[800]!.withOpacity(0.5);
+      color2 = Colors.red[300]!.withOpacity(0.5);
+    } else {
+      color1 = Colors.grey.withOpacity(0.5); // Default fallback
+      color2 = Colors.grey[400]!.withOpacity(0.5);
+    }
+
+    return [color1, color2];
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+
     double WidthSize = MediaQuery.of(context).size.width;
     double HeightSize = MediaQuery.of(context).size.height;
     final circleSize = min(WidthSize, HeightSize) * 0.3;
-    bool colorState = false;
 
+    if (!appState.isTempStateReady) {
+      // Show a loading indicator until the temperature data is ready
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     // Prevent back navigation
     return WillPopScope(
       onWillPop: () async {
@@ -28,6 +69,7 @@ class HomePage extends StatelessWidget {
         return false;
       },
       child: Scaffold(
+        //resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: SizedBox(
             width: WidthSize,
@@ -46,7 +88,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   right: 0,
-                  top: 50,
+                  top: HeightSize * 0.01,
                 ),
                 //------------------------ Left Elips ------------
                 Positioned(
@@ -60,180 +102,164 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   left: 0,
-                  top: 50,
+                  top: HeightSize * 0.01,
                 ),
                 //------------------------------ Rectangle ----------
                 Positioned(
-                    left: 20,
-                    child: Stack(
-                      children: [
-                        GlowingRectangle(
-                          width: WidthSize - 40, // Rectangle width
-                          height: HeightSize / 1.35, // Rectangle height
-                          borderRadius: 50, // Rounded corner radius
-                          innerColor: Colors.white, // Rectangle fill color
-                          shadowColor:
-                          Colors.black.withOpacity(0.4), // Shadow color
-                        ),
-                        //---------------------- Top Icons ------------------
-                        Positioned(
-                          top: 20,
-                          left: 10,
+                  left: 20,
+                  child: Stack(
+                    children: [
+                      GlowingRectangle(
+                        width: WidthSize - 40, // Rectangle width
+                        height: HeightSize / 1.35, // Rectangle height
+                        bottomLeftRadius: 30,
+                        bottomRightRadius: 30,
+                        innerColor: Colors.white, // Rectangle fill color
+                        shadowColor:
+                            Colors.black.withOpacity(0.4), // Shadow color
+                      ),
+                      //---------------------- Top Icons ------------------
+                      Positioned(
+                        top: 20,
+                        left: 10,
+                        child: Container(
+                          //decoration: BoxDecoration(border: Border.all()),
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          width: WidthSize * 0.88,
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               InkWell(
-                                child: SvgPicture.asset(
-                                  'assets/imag/iteams/backiconleft.svg',
-                                  semanticsLabel: 'backiconleft',
-                                  width: WidthSize / 30,
-                                  height: HeightSize / 30,
-                                ),
-                              ),
-                              SizedBox(width: WidthSize / 1.75),
-                              InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, 'userDataPage');
+                                },
                                 child: SvgPicture.asset(
                                   'assets/imag/iteams/user-circle.svg',
                                   semanticsLabel: 'user-circle',
-                                  width: WidthSize / 30,
-                                  height: HeightSize / 30,
+                                  width: WidthSize / 25,
+                                  height: HeightSize / 25,
                                 ),
                               ),
-                              SizedBox(width: WidthSize / 25),
+                              //SizedBox(width: WidthSize / 25),
                               InkWell(
                                 onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (j) {
-                                        return ControlModeScreen();
-                                      },
-                                    ),
-                                  );
+                                  Navigator.pushNamed(context, 'SettingPage');
                                 },
                                 child: SvgPicture.asset(
                                   'assets/imag/iteams/adjustments.svg',
                                   semanticsLabel: 'adjustments',
-                                  width: WidthSize / 30,
-                                  height: HeightSize / 30,
+                                  width: WidthSize / 25,
+                                  height: HeightSize / 25,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        //--------------------- ButtonGroup -----------------
-                        Positioned(
-                          top: 80,
-                          left: WidthSize / 12,
-                          width: WidthSize / 1.2,
-                          height: 40,
-                          child: ButtonGroup(),
-                        ),
-                        //------------------------- Circules --------------------
-                        Center(
-                          heightFactor: HeightSize / 230,
-                          widthFactor: WidthSize / 230,
-                          child: Stack(
-                            alignment: AlignmentDirectional.center,
-                            children: [
-                              //----------------- Arc Code -------------
-                              Positioned(
-                                child: Stack(
-                                  alignment: AlignmentDirectional.center,
-                                  children: [
-                                    //----------------------------  Outer Arc ------------
-                                    Positioned(
-                                      child: RotatingCircle(
-                                        size: circleSize *
-                                            1.65, // Size of the circle
-                                        colors: [
-                                          Color(0xFF4DF1DD),
-                                          Color(0xFF419389)
-                                        ], // Gradient colors
-                                        strokeWidth:
-                                        15.0, // Thickness of the circle
-                                        RotatSpeed: 10,
+                      ),
+                      //--------------------- ButtonGroup -----------------
+                      Positioned(
+                        top: 80,
+                        left: WidthSize / 12,
+                        width: WidthSize / 1.2,
+                        height: 40,
+                        child: ButtonGroup(),
+                      ),
+                      //------------------------- Circules --------------------
+                      Center(
+                        heightFactor: HeightSize / 230,
+                        widthFactor: WidthSize / 230,
+                        child: Stack(
+                          alignment: AlignmentDirectional.center,
+                          children: [
+                            //----------------- Arc Code -------------
+                            Positioned(
+                              child: Stack(
+                                alignment: AlignmentDirectional.center,
+                                children: [
+                                  //----------------- Circle & Text Code -----------
+                                  Positioned(
+                                    child: Center(
+                                      child: Stack(
+                                        alignment: AlignmentDirectional.center,
+                                        children: [
+                                          //--------------------------- Circle ------------
+                                          FutureBuilder<List<Color>>(
+                                              future: colorState(),
+                                              builder: (context, snapshot) {
+                                                {
+                                                  if (snapshot
+                                                          .connectionState ==
+                                                      ConnectionState.waiting) {
+                                                    return Center(
+                                                        child:
+                                                            CircularProgressIndicator());
+                                                  } else if (snapshot
+                                                      .hasError) {
+                                                    return Center(
+                                                        child: Text(
+                                                            'Error: ${snapshot.error}'));
+                                                  } else {
+                                                    final colors =
+                                                        snapshot.data!;
+                                                    return GlowingCircle(
+                                                        size: circleSize *
+                                                            0.9, // Circle size
+                                                        innerColor: Colors
+                                                            .white, // Inner circle color
+                                                        glowColor: colors[0]);
+                                                  }
+                                                }
+                                              }),
+
+                                          Container(
+                                            child: appState.isTempStateReady
+                                                ? StreamDataFrom_Firebase()
+                                                : CircularProgressIndicator(),
+                                          )
+                                        ],
                                       ),
                                     ),
-                                    //---------------------------  inner Arc ------------
-                                    Positioned(
-                                        child: RotatingCircle(
-                                          size:
-                                          circleSize * 1.2, // Size of the circle
-                                          colors: [
-                                            Color(0xFFBEBEBE),
-                                            Color(0xFF666666)
-                                          ], // Gradient colors
-                                          strokeWidth:
-                                          10.0, // Thickness of the circle
-                                          RotatDirection: -1,
-                                          RotatSpeed: 5,
-                                        )),
-                                  ],
-                                ),
-                              ),
-                              //----------------- Circle & Text Code -----------
-                              Positioned(
-                                child: Center(
-                                  child: Stack(
-                                    alignment: AlignmentDirectional.center,
-                                    children: [
-                                      //--------------------------- Circle ------------
-                                      GlowingCircle(
-                                        size: circleSize *
-                                            0.9, // Circle size
-                                        innerColor:
-                                        Colors.white, // Inner circle color
-                                        glowColor: const Color.fromARGB(
-                                            88, 182, 182, 182)
-                                            .withOpacity(0.5), // Outer glow color
-                                      ),
-                                      StreamDataFrom_Firebase()
-                                    ],
                                   ),
-                                ),
+                                  //----------------------------  Outer Arc ------------
+                                  Positioned(
+                                    child: RotatingCircle(
+                                      size: circleSize *
+                                          1.65, // Size of the circle
+                                      colors: [
+                                        Color(0xFF4DF1DD),
+                                        Color(0xFF419389)
+                                      ], // Gradient colors
+                                      strokeWidth:
+                                          15.0, // Thickness of the circle
+                                      RotatSpeed: 10,
+                                      enableGlow: false,
+                                    ),
+                                  ),
+                                  //---------------------------  inner Arc ------------
+                                  Positioned(
+                                      child: RotatingCircle(
+                                    size:
+                                        circleSize * 1.2, // Size of the circle
+                                    colors: [
+                                      Color(0xFFBEBEBE),
+                                      Color(0xFF666666)
+                                    ], // Gradient colors
+                                    strokeWidth:
+                                        10.0, // Thickness of the circle
+                                    RotatDirection: -1,
+                                    RotatSpeed: 5,
+                                  )),
+                                ],
                               ),
-                              //------------------
-                            ],
-                          ),
-                        )
-                      ],
-                    )),
-                //------------------- NavBar ------------
-                Positioned(
-                  height: HeightSize / 5.5,
-                  left: WidthSize / 16,
-                  bottom: 0,
-                  child: Container(
-                    //decoration: BoxDecoration(border: Border.all())
-                    child: Stack(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 40),
-                          width: WidthSize - 50,
-                          child: SvgPicture.asset(
-                            'assets/imag/iteams/Rect_NAV.svg',
-                            semanticsLabel: 'Rect_NA',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        //---------------- Circule of Navbar -----------------
-                        Positioned(
-                          child: Container(
-                            width: WidthSize / 5,
-                            height: HeightSize / 5,
-                            child: Image.asset(
-                              'assets/imag/iteams/Group 3.png',
-                              semanticLabel: 'Group 3',
-                              fit: BoxFit.contain,
                             ),
-                          ),
-                          left: (WidthSize / 2.95),
-                          bottom: 15,
+
+                            //------------------
+                          ],
                         ),
-                      ],
-                    ),
+                      )
+                    ],
                   ),
                 ),
-
                 Positioned(
                   top: HeightSize / 5.5,
                   left: WidthSize / 4.5,
@@ -305,6 +331,10 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                //------------------- NavBar ------------
+                CustomNavigationBar(
+                    widthSize: WidthSize, heightSize: HeightSize),
               ],
             ),
           ),

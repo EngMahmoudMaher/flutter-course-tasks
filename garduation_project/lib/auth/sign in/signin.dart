@@ -7,9 +7,9 @@ import 'package:garduation_project/widgets/ui_items/customcheckbox.dart';
 import 'package:garduation_project/widgets/ui_items/customtextfield.dart';
 import 'package:garduation_project/widgets/ui_items/glowing_rectangle.dart';
 import 'package:garduation_project/widgets/ui_items/gradient_text.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app screens/homepage.dart';
 import '../sign up/signup.dart';
@@ -27,6 +27,40 @@ class _SigninPageState extends State<SigninPage> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool _isLoading = false; // To track the loading state
   bool _isPasswordVisible = false; // To track password visibility
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController(); // Initialize controller
+    _passwordController = TextEditingController(); // Initialize controller
+    _checkLoginStatus();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose(); // Clean up controller
+    _passwordController.dispose(); // Clean up controller
+    super.dispose();
+  }
+
+  // Check if user is already logged in
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (isLoggedIn) {
+      // Navigate directly to home page if the user is already logged in
+      Navigator.pushReplacementNamed(context, 'HomePage');
+    }
+  }
+
+  // Save login state
+  Future<void> _saveLoginStatus(bool isLoggedIn) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', isLoggedIn);
+  }
 
   // Sign in with email and password
   Future<void> _signInWithEmailPassword() async {
@@ -38,13 +72,10 @@ class _SigninPageState extends State<SigninPage> {
         email: _emailController.text,
         password: _passwordController.text,
       );
+      await _saveLoginStatus(true); // Save login status
       print('User signed in: ${userCredential.user?.email}');
-      // Navigate to home page or dashboard
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => HomePage()), // Replace with your HomePage
-      );
+
+      Navigator.pushReplacementNamed(context, 'HomePage');
       setState(() {
         _isLoading = false;
       });
@@ -61,8 +92,7 @@ class _SigninPageState extends State<SigninPage> {
       } else {
         _showErrorDialog('Error: ${e.message}');
       }
-      print(
-          'FirebaseAuthException: ${e.message}'); // Log detailed Firebase error
+      print('FirebaseAuthException: ${e.message}'); // Log detailed Firebase error
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -109,20 +139,22 @@ class _SigninPageState extends State<SigninPage> {
       }
 
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      await _auth.signInWithCredential(credential);
+
+      // Save login status
+      await _saveLoginStatus(true);
 
       // Navigate to HomePage after successful sign-in
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-            builder: (context) => HomePage()), // Replace with your HomePage
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -142,28 +174,10 @@ class _SigninPageState extends State<SigninPage> {
     }
   }
 
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
-
-  @override
-  void initState() {
-    super.initState();
-    _emailController = TextEditingController(); // Initialize controller
-    _passwordController = TextEditingController(); // Initialize controller
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose(); // Clean up controller
-    _passwordController.dispose(); // Clean up controller
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     double WidthSize = MediaQuery.of(context).size.width;
     double HeightSize = MediaQuery.of(context).size.height;
-    bool isChecked = false;
     final appState = Provider.of<AppState>(context);
 
     return Scaffold(
@@ -187,7 +201,7 @@ class _SigninPageState extends State<SigninPage> {
                     ),
                   ),
                   right: 0,
-                  top: 50,
+                  top: HeightSize * 0.01,
                 ),
                 //------------------------ Left Elips ------------
                 Positioned(
@@ -201,7 +215,7 @@ class _SigninPageState extends State<SigninPage> {
                     ),
                   ),
                   left: 0,
-                  top: 50,
+                  top: HeightSize * 0.01,
                 ),
                 //------------------------------ Rectangle ----------
                 Positioned(
@@ -210,17 +224,18 @@ class _SigninPageState extends State<SigninPage> {
                     children: [
                       GlowingRectangle(
                         width: WidthSize - 40, // Rectangle width
-                        height: HeightSize / 1.35, // Rectangle height
-                        borderRadius: 50, // Rounded corner radius
+                        height: HeightSize / 1.3, // Rectangle height
+                        bottomLeftRadius: 50,
+                        bottomRightRadius: 50,
                         innerColor: Colors.white, // Rectangle fill color
                         shadowColor:
-                            Colors.black.withOpacity(0.4), // Shadow color
+                        Colors.black.withOpacity(0.4), // Shadow color
                       ),
                       Positioned(
                         top: HeightSize / 20,
                         left: WidthSize / 25,
                         child: Container(
-                          //decoration: BoxDecoration(border: Border.all()),
+                          //decoration: BoxDecoration(border: Border.all())
                           child: Column(
                             children: [
                               InkWell(
@@ -233,7 +248,6 @@ class _SigninPageState extends State<SigninPage> {
                               ),
                               SizedBox(height: HeightSize / 50),
                               //------------------- TextField of Email --------------
-
                               CustomTextField(
                                 controller: _emailController,
                                 hintText: 'Email',
@@ -243,7 +257,7 @@ class _SigninPageState extends State<SigninPage> {
                                     return 'Please enter your email';
                                   }
                                   if (!RegExp(
-                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                                       .hasMatch(value)) {
                                     return 'Enter a valid email';
                                   }
@@ -267,7 +281,6 @@ class _SigninPageState extends State<SigninPage> {
                                       color: ProjectColors.secondTextColor,
                                     ),
                                     onPressed: () {
-                                      //bool check = appState.isPasswordVisible;
                                       appState.PasswordVisibleUpdate(
                                           !appState.isPasswordVisible);
                                     },
@@ -278,8 +291,7 @@ class _SigninPageState extends State<SigninPage> {
                                         .secondTextColor, // Hint text color
                                     fontSize: WidthSize / 25,
                                   ),
-                                  border: InputBorder
-                                      .none, // Remove default underline
+                                  border: InputBorder.none, // Remove default underline
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -288,14 +300,13 @@ class _SigninPageState extends State<SigninPage> {
                                   return null;
                                 },
                               ),
-
                               //------------------- Row For Check box and pass --------------
                               Container(
                                 width: WidthSize / 1.35,
                                 padding: EdgeInsets.only(right: 10, left: 10),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     CustomCheckbox(),
                                     InkWell(
@@ -305,7 +316,7 @@ class _SigninPageState extends State<SigninPage> {
                                           color: ProjectColors.mainColor,
                                           decoration: TextDecoration.underline,
                                           decorationColor:
-                                              ProjectColors.mainColor,
+                                          ProjectColors.mainColor,
                                         ),
                                       ),
                                     )
@@ -313,12 +324,11 @@ class _SigninPageState extends State<SigninPage> {
                                 ),
                               ),
                               SizedBox(height: HeightSize / 50),
-                              //------------------ Sign in Buttom-------------
+                              //------------------ Sign in Button -------------
                               GestureDetector(
-                                onTap: () {
+                                onTap: () async {
                                   appState.signInUpdate(true);
-                                  if (_formKey.currentState?.validate() ??
-                                      false) {
+                                  if (_formKey.currentState?.validate() ?? false) {
                                     _signInWithEmailPassword(); // Perform email/password sign-in
                                   }
                                 },
@@ -337,8 +347,7 @@ class _SigninPageState extends State<SigninPage> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.cyanAccent.shade100
-                                            .withOpacity(0.5),
+                                        color: Colors.cyanAccent.shade100.withOpacity(0.5),
                                         blurRadius: 20,
                                         spreadRadius: 5,
                                         offset: const Offset(0, 0),
@@ -359,8 +368,11 @@ class _SigninPageState extends State<SigninPage> {
                               SizedBox(height: HeightSize / 40),
                               //------------- Create account link -----------
                               InkWell(
-                                onTap: (){
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (s){return const SignUpPage();}));
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(builder: (s) {
+                                    return const SignUpPage();
+                                  }));
                                 },
                                 child: Text(
                                   "Create New Account",
@@ -396,14 +408,14 @@ class _SigninPageState extends State<SigninPage> {
                                 width: WidthSize / 1.5,
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                  MainAxisAlignment.spaceAround,
                                   children: [
                                     //------------- Facebook icon -----------
                                     InkWell(
                                       child: SvgPicture.asset(
                                         'assets/imag/iteams/facebook_icon.svg',
                                         colorFilter:
-                                            ColorFilter.linearToSrgbGamma(),
+                                        ColorFilter.linearToSrgbGamma(),
                                       ),
                                     ),
                                     //------------- Google icon -----------
@@ -423,8 +435,7 @@ class _SigninPageState extends State<SigninPage> {
                                       child: SvgPicture.asset(
                                         'assets/imag/iteams/x_icon.svg',
                                         colorFilter: ColorFilter.mode(
-                                            const Color.fromARGB(
-                                                105, 255, 255, 255),
+                                            const Color.fromARGB(105, 255, 255, 255),
                                             BlendMode.lighten),
                                       ),
                                     ),
@@ -438,7 +449,7 @@ class _SigninPageState extends State<SigninPage> {
                     ],
                   ),
                 ),
-                //---------------------------Bottom_Ellipse-----------
+                //--------------------------- Bottom_Ellipse -----------
                 Positioned(
                   child: Container(
                     width: WidthSize,

@@ -35,6 +35,7 @@ class _SignUpPageState extends State<SignUpPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+
     super.dispose();
   }
 
@@ -105,7 +106,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [Colors.cyanAccent.shade200, Colors.teal.shade400],
+                        colors: [
+                          Colors.cyanAccent.shade200,
+                          Colors.teal.shade400
+                        ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -176,7 +180,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [Colors.cyanAccent.shade200, Colors.teal.shade400],
+                        colors: [
+                          Colors.cyanAccent.shade200,
+                          Colors.teal.shade400
+                        ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -225,7 +232,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-
   // Method to handle sign-up with email and password
   Future<void> _signUpWithEmailPassword() async {
     setState(() {
@@ -241,7 +247,8 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
@@ -269,7 +276,6 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   // Show error dialog
-
 
   @override
   Widget build(BuildContext context) {
@@ -318,7 +324,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       GlowingRectangle(
                         width: WidthSize - 40,
                         height: HeightSize / 1.35,
-                        borderRadius: 50,
+                        bottomLeftRadius: 50,
+                        bottomRightRadius: 50,
                         innerColor: Colors.white,
                         shadowColor: Colors.black.withOpacity(0.4),
                       ),
@@ -346,7 +353,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your email';
                                   }
-                                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                  if (!RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                      .hasMatch(value)) {
                                     return 'Enter a valid email';
                                   }
                                   return null;
@@ -388,7 +397,8 @@ class _SignUpPageState extends State<SignUpPage> {
                               // Sign Up Button
                               GestureDetector(
                                 onTap: () {
-                                  if (_formKey.currentState?.validate() ?? false) {
+                                  if (_formKey.currentState?.validate() ??
+                                      false) {
                                     _signUpWithEmailPassword();
                                   }
                                 },
@@ -407,7 +417,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.cyanAccent.shade100.withOpacity(0.5),
+                                        color: Colors.cyanAccent.shade100
+                                            .withOpacity(0.5),
                                         blurRadius: 20,
                                         spreadRadius: 5,
                                         offset: const Offset(0, 0),
@@ -433,13 +444,15 @@ class _SignUpPageState extends State<SignUpPage> {
                                 child: Text(
                                   'Already have an account? Sign In',
                                   style: TextStyle(
-                                      fontSize: WidthSize / 30, color: Colors.cyan),
+                                      fontSize: WidthSize / 30,
+                                      color: Colors.cyan),
                                 ),
                                 onTap: () {
                                   // Navigate to SignInPage
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(builder: (context) =>SigninPage()),
+                                    MaterialPageRoute(
+                                        builder: (context) => SigninPage()),
                                   );
                                 },
                               ),
@@ -450,8 +463,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ],
                   ),
                 ),
-                if (_isLoading)
-                  Center(child: CircularProgressIndicator()),
+                if (_isLoading) Center(child: CircularProgressIndicator()),
               ],
             ),
           ),

@@ -46,9 +46,12 @@ dependencies:
   flutter_svg: ^2.0.15
   provider: ^6.1.2
   flutter_joystick: ^0.2.1
-  connectivity_plus: ^6.1.0
   flutter_launcher_icons: ^0.14.1
-
+  date_time_picker: ^2.1.0
+  firebase_storage: ^12.4.1 # Firebase Storage for uploading files
+  image_picker: ^0.8.5+3 # To pick images or files from gallery
+  fluttertoast: ^8.0.9 # For displaying toast messages
+  url_launcher: ^6.3.1
 
 
 dev_dependencies:
@@ -57,7 +60,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/imag/logo/mobicare.png"
+  image_path: "assets/imag/logo/logo.jpg"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

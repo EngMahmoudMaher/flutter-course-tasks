@@ -17,6 +17,7 @@ class _StreamDataFrom_FirebaseState extends State<StreamDataFrom_Firebase> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     final widthSize = MediaQuery.of(context).size.width;
+
     return StreamBuilder(
       stream: dbr.child("Data").onValue,
       builder: (context, snapshot) {
@@ -32,6 +33,7 @@ class _StreamDataFrom_FirebaseState extends State<StreamDataFrom_Firebase> {
           final data = snapshot.data!.snapshot.value as Map;
           final temperature =
               double.tryParse(data["Temperature"].toString()) ?? 0.0;
+
           final humidity = double.tryParse(data["Humidity"].toString()) ?? 0.0;
 
           return RichText(
@@ -43,7 +45,7 @@ class _StreamDataFrom_FirebaseState extends State<StreamDataFrom_Firebase> {
                       : temperature.toStringAsFixed(1),
                   style: TextStyle(
                     color: Color(0xffB7B7B7),
-                    fontSize: widthSize / 20,
+                    fontSize: MediaQuery.of(context).size.width / 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -53,7 +55,8 @@ class _StreamDataFrom_FirebaseState extends State<StreamDataFrom_Firebase> {
                     child: Text(
                       appState.textState ? "" : '\u1d3c',
                       style: TextStyle(
-                          fontSize: widthSize / 40, color: Color(0xffB7B7B7)),
+                          fontSize: MediaQuery.of(context).size.width / 40,
+                          color: Color(0xffB7B7B7)),
                     ),
                   ),
                 ),
@@ -61,7 +64,7 @@ class _StreamDataFrom_FirebaseState extends State<StreamDataFrom_Firebase> {
                   text: appState.textState ? "%" : 'C',
                   style: TextStyle(
                       color: Color(0xffB7B7B7),
-                      fontSize: widthSize / 20,
+                      fontSize: MediaQuery.of(context).size.width / 20,
                       fontWeight: FontWeight.bold),
                 ),
               ],

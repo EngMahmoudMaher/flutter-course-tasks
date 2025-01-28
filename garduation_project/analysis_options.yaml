@@ -13,6 +13,7 @@ analyzer:
     sort_child_properties_last: ignore
     prefer_const_constructors: ignore
     prefer_const_literals_to_create_immutables: ignore
+    deprecated_member_use: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
