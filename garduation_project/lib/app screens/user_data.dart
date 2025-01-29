@@ -6,6 +6,8 @@ import 'package:garduation_project/app%20screens/patient%20information.dart';
 import 'package:garduation_project/app%20screens/results.dart';
 import 'package:garduation_project/widgets/ui_items/custom_navigationbar.dart';
 
+import 'calender.dart';
+
 class userDataPage extends StatelessWidget {
   const userDataPage({super.key});
 
@@ -196,12 +198,12 @@ class userDataPage extends StatelessWidget {
                                 "destination": MedicalHistoryPage(),
                               },
                               {
-                                "title": "Current Health State",
+                                "title": "Reminder",
                                 "gradient": [
                                   Color(0xFF419389),
                                   Color(0xFF4DF1DD)
                                 ],
-                                "destination": CurrentHealthStatePage(),
+                                "destination": RemindersPage(),
                               },
                               {
                                 "title": "Results and Examination",
@@ -273,16 +275,5 @@ class userDataPage extends StatelessWidget {
   }
 }
 
-class CurrentHealthStatePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Current Health State")),
-      body: Center(
-        child: Text("Welcome to Current Health State",
-            style: TextStyle(fontSize: 24)),
-      ),
-    );
-  }
-}
+
 

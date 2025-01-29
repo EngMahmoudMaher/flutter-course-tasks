@@ -41,11 +41,11 @@ class _SignUpPageState extends State<SignUpPage> {
 
   // Show success dialog with smiley face and message
   // Method to handle navigation without pop-ups
-  void _navigateToHomePage() {
+  void _navigateToSigninPage() {
     Navigator.of(context).pop(); // Close any open dialogs
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomePage()),
+      MaterialPageRoute(builder: (context) => SigninPage()),
     );
   }
 
@@ -136,7 +136,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: _navigateToHomePage, // Navigate after closing dialog
+              onPressed: _navigateToSigninPage, // Navigate after closing dialog
               child: Text('OK'),
             ),
           ],

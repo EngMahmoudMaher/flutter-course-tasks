@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.garduation_project"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -17,14 +17,20 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    def buildConfig = rootProject.extensions.getByName("ext")
+
+    compileSdk buildConfig.compileSdkVersion
 
     defaultConfig {
+        namespace = "com.example.garduation_project"
         applicationId = "com.example.garduation_project"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        minSdkVersion 23 // Make sure this is set to 23 or higher for Firebase support
+        minSdkVersion 29 // Make sure this is set to 23 or higher for Firebase support
+        compileSdkVersion 34
+        buildToolsVersion "34.0.0"
     }
 
     buildTypes {
@@ -50,6 +56,7 @@ dependencies {
 
     // Example: Add Firebase Realtime Database
     implementation 'com.google.firebase:firebase-database'
+
 }
 
 apply plugin: 'com.google.gms.google-services'  // Apply Google Services plugin (must be here)

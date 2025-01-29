@@ -49,9 +49,14 @@ dependencies:
   flutter_launcher_icons: ^0.14.1
   date_time_picker: ^2.1.0
   firebase_storage: ^12.4.1 # Firebase Storage for uploading files
-  image_picker: ^0.8.5+3 # To pick images or files from gallery
+  image_picker: ^1.1.2 # To pick images or files from gallery
   fluttertoast: ^8.0.9 # For displaying toast messages
   url_launcher: ^6.3.1
+  flutter_qr_reader: ^1.0.5
+  permission_handler: ^11.3.1
+
+
+
 
 
 dev_dependencies:

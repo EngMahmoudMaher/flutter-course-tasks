@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:garduation_project/colors/maincolors.dart';
 import 'package:garduation_project/provider/appstate.dart';
 import 'package:garduation_project/widgets/ui_items/customcheckbox.dart';
@@ -10,6 +12,8 @@ import 'package:garduation_project/widgets/ui_items/gradient_text.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_qr_reader/flutter_qr_reader.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../app screens/homepage.dart';
 import '../sign up/signup.dart';
@@ -25,48 +29,50 @@ class _SigninPageState extends State<SigninPage> {
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-  bool _isLoading = false; // To track the loading state
-  bool _isPasswordVisible = false; // To track password visibility
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  late TextEditingController _wheelchairController;  // Controller for the QR result
+  bool _flashlightState = false;
+  QrReaderViewController? _controller;
+  bool _openAction = false;
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController(); // Initialize controller
-    _passwordController = TextEditingController(); // Initialize controller
-    _checkLoginStatus();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _wheelchairController = TextEditingController();  // Initialize the controller for QR result
+    _checkLoginStatus(); // Check the login status when the page is loaded
   }
 
   @override
+  @override
   void dispose() {
-    _emailController.dispose(); // Clean up controller
-    _passwordController.dispose(); // Clean up controller
+    _emailController.dispose();
+    _passwordController.dispose();
+    _wheelchairController.dispose();  // Dispose the controller
+    _controller?.stopCamera();  // Stop the camera when the widget is disposed
     super.dispose();
   }
 
-  // Check if user is already logged in
+
+  // Check if the user is already logged in using SharedPreferences
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
     if (isLoggedIn) {
-      // Navigate directly to home page if the user is already logged in
       Navigator.pushReplacementNamed(context, 'HomePage');
     }
   }
 
-  // Save login state
   Future<void> _saveLoginStatus(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', isLoggedIn);
   }
 
-  // Sign in with email and password
   Future<void> _signInWithEmailPassword() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() {});
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
@@ -74,35 +80,25 @@ class _SigninPageState extends State<SigninPage> {
       );
       await _saveLoginStatus(true); // Save login status
       print('User signed in: ${userCredential.user?.email}');
-
       Navigator.pushReplacementNamed(context, 'HomePage');
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
       if (e.code == 'user-not-found') {
         _showErrorDialog('No user found for that email.');
       } else if (e.code == 'wrong-password') {
         _showErrorDialog('Wrong password provided.');
-      } else if (e.code == 'too-many-requests') {
-        _showErrorDialog('Too many attempts. Please try again later.');
       } else {
         _showErrorDialog('Error: ${e.message}');
       }
-      print('FirebaseAuthException: ${e.message}'); // Log detailed Firebase error
+      print('FirebaseAuthException: ${e.message}');
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
       print('Error signing in: $e');
       _showErrorDialog('An unexpected error occurred. Please try again later.');
     }
   }
 
-  // Show error dialog
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -123,18 +119,12 @@ class _SigninPageState extends State<SigninPage> {
     );
   }
 
-  // Sign in with Google
   Future<void> _signInWithGoogle() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() {});
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        // The user canceled the sign-in
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() {});
         return;
       }
 
@@ -148,10 +138,7 @@ class _SigninPageState extends State<SigninPage> {
       UserCredential userCredential =
       await _auth.signInWithCredential(credential);
 
-      // Save login status
-      await _saveLoginStatus(true);
-
-      // Navigate to HomePage after successful sign-in
+      await _saveLoginStatus(true); // Save login status
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
@@ -160,18 +147,103 @@ class _SigninPageState extends State<SigninPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Google Sign-in successful!')),
       );
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
       print('Google Sign-In error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
+  }
+
+  void alert(String tip) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tip)));
+  }
+
+  Future<void> openScanUI(BuildContext context) async {
+    // Request camera permission
+    if (!await permission()) return;
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("QR Code Scanner"),
+          actions: [
+            IconButton(
+              icon: Icon(
+                _flashlightState ? Icons.flash_off : Icons.flash_on,
+              ),
+              onPressed: () {
+                flashlight();
+              },
+            ),
+          ],
+        ),
+        body: Center(
+          child: QrReaderView(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            callback: (controller) {
+              this._controller = controller;
+              // Start camera and listen for scan results
+              controller.startCamera((result, _) {
+                if (!mounted) return; // Ensure widget is still mounted
+                Navigator.of(context).pop(); // Close scanner
+                alert(result); // Show result
+                _wheelchairController.text = result;  // Update the text field with the scanned result
+              });
+            },
+          ),
+        ),
+      );
+    }));
+  }
+
+  // Method to toggle flashlight
+  Future<void> flashlight() async {
+    if (_controller == null) return; // Ensure controller is not null
+    final state = await _controller?.setFlashlight();
+    if (mounted) {
+      setState(() {
+        _flashlightState = state ?? false;
+      });
+    }
+  }
+  void handleQRCodeResult(String result) {
+    if (mounted) {
+      setState(() {
+        _wheelchairController.text = result;  // Update the text field
+      });
+      Fluttertoast.showToast(msg: "QR Code Result: $result");
+    }
+  }
+
+  Future<bool> permission() async {
+    if (_openAction) return false;
+    _openAction = true;
+    var status = await Permission.camera.status;
+    print(status);
+    if (status.isDenied || status.isPermanentlyDenied) {
+      status = await Permission.camera.request();
+      print(status);
+    }
+
+    if (status.isRestricted) {
+      alert("Restricted");
+      await Future.delayed(Duration(seconds: 3));
+      openAppSettings();
+      _openAction = false;
+      return false;
+    }
+
+    if (!status.isGranted) {
+      alert("Granted");
+      _openAction = false;
+      return false;
+    }
+    _openAction = false;
+    return true;
   }
 
   @override
@@ -189,7 +261,6 @@ class _SigninPageState extends State<SigninPage> {
             key: _formKey,
             child: Stack(
               children: [
-                //------------------------ Right Elips ------------
                 Positioned(
                   child: Container(
                     width: WidthSize / 3.1,
@@ -203,7 +274,6 @@ class _SigninPageState extends State<SigninPage> {
                   right: 0,
                   top: HeightSize * 0.01,
                 ),
-                //------------------------ Left Elips ------------
                 Positioned(
                   child: Container(
                     width: WidthSize / 3.1,
@@ -217,29 +287,25 @@ class _SigninPageState extends State<SigninPage> {
                   left: 0,
                   top: HeightSize * 0.01,
                 ),
-                //------------------------------ Rectangle ----------
                 Positioned(
                   left: 20,
                   child: Stack(
                     children: [
                       GlowingRectangle(
-                        width: WidthSize - 40, // Rectangle width
-                        height: HeightSize / 1.3, // Rectangle height
+                        width: WidthSize - 40,
+                        height: HeightSize / 1.12,
                         bottomLeftRadius: 50,
                         bottomRightRadius: 50,
-                        innerColor: Colors.white, // Rectangle fill color
-                        shadowColor:
-                        Colors.black.withOpacity(0.4), // Shadow color
+                        innerColor: Colors.white,
+                        shadowColor: Colors.black.withOpacity(0.4),
                       ),
                       Positioned(
-                        top: HeightSize / 20,
+                        top: HeightSize / 35,
                         left: WidthSize / 25,
                         child: Container(
-                          //decoration: BoxDecoration(border: Border.all())
                           child: Column(
                             children: [
                               InkWell(
-                                //------------ LOGO SVG ---------------
                                 child: SvgPicture.asset(
                                   'assets/imag/iteams/logo.svg',
                                   width: WidthSize / 4,
@@ -247,7 +313,6 @@ class _SigninPageState extends State<SigninPage> {
                                 ),
                               ),
                               SizedBox(height: HeightSize / 50),
-                              //------------------- TextField of Email --------------
                               CustomTextField(
                                 controller: _emailController,
                                 hintText: 'Email',
@@ -265,7 +330,6 @@ class _SigninPageState extends State<SigninPage> {
                                 },
                               ),
                               SizedBox(height: HeightSize / 200),
-                              //------------------- TextField of Password --------------
                               CustomTextField(
                                 controller: _passwordController,
                                 hintText: 'Password',
@@ -287,11 +351,10 @@ class _SigninPageState extends State<SigninPage> {
                                   ),
                                   hintText: "Password",
                                   hintStyle: TextStyle(
-                                    color: ProjectColors
-                                        .secondTextColor, // Hint text color
+                                    color: ProjectColors.secondTextColor,
                                     fontSize: WidthSize / 25,
                                   ),
-                                  border: InputBorder.none, // Remove default underline
+                                  border: InputBorder.none,
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -300,169 +363,173 @@ class _SigninPageState extends State<SigninPage> {
                                   return null;
                                 },
                               ),
-                              //------------------- Row For Check box and pass --------------
-                              Container(
-                                width: WidthSize / 1.35,
-                                padding: EdgeInsets.only(right: 10, left: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    CustomCheckbox(),
-                                    InkWell(
-                                      child: Text(
-                                        "Forget password?",
-                                        style: TextStyle(
-                                          color: ProjectColors.mainColor,
-                                          decoration: TextDecoration.underline,
-                                          decorationColor:
-                                          ProjectColors.mainColor,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: HeightSize / 50),
-                              //------------------ Sign in Button -------------
-                              GestureDetector(
-                                onTap: () async {
-                                  appState.signInUpdate(true);
-                                  if (_formKey.currentState?.validate() ?? false) {
-                                    _signInWithEmailPassword(); // Perform email/password sign-in
-                                  }
-                                },
-                                child: Container(
-                                  width: WidthSize / 2.5,
-                                  height: HeightSize / 20,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(50),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.cyanAccent.shade200,
-                                        Colors.teal.shade400
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.cyanAccent.shade100.withOpacity(0.5),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
-                                        offset: const Offset(0, 0),
-                                      ),
-                                    ],
+                              SizedBox(height: HeightSize / 200),
+                              CustomTextField(
+                                controller: _wheelchairController,  // The updated controller for the QR result
+                                hintText: 'Wheelchair ID',
+                                icon: Icons.qr_code_2_outlined,
+                                decoration: InputDecoration(
+                                  hintStyle: TextStyle(
+                                    color: ProjectColors.secondTextColor,
+                                    fontSize: WidthSize / 25,
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      'Sign in',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: WidthSize / 22),
-                                    ),
-                                  ),
+                                  border: InputBorder.none,
                                 ),
                               ),
-                              SizedBox(height: HeightSize / 40),
-                              //------------- Create account link -----------
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context)
-                                      .push(MaterialPageRoute(builder: (s) {
-                                    return const SignUpPage();
-                                  }));
-                                },
-                                child: Text(
-                                  "Create New Account",
-                                  style: TextStyle(
-                                    color: ProjectColors.mainColor,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: ProjectColors.mainColor,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: HeightSize / 100),
-                              Text(
-                                "OR",
-                                style: TextStyle(
-                                  color: ProjectColors.mainColor,
-                                ),
-                              ),
-                              SizedBox(height: HeightSize / 100),
-                              GradientText(
-                                text: 'Sign in With', // Your text
-                                size: WidthSize / 22,
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xFF419389),
-                                    Color(0xFF4DF1DD)
-                                  ], // Gradient colors
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              SizedBox(height: HeightSize / 100),
-                              Container(
-                                width: WidthSize / 1.5,
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceAround,
-                                  children: [
-                                    //------------- Facebook icon -----------
-                                    InkWell(
-                                      child: SvgPicture.asset(
-                                        'assets/imag/iteams/facebook_icon.svg',
-                                        colorFilter:
-                                        ColorFilter.linearToSrgbGamma(),
-                                      ),
-                                    ),
-                                    //------------- Google icon -----------
-                                    Container(
-                                      margin: EdgeInsets.only(top: 8),
-                                      child: GestureDetector(
-                                        onTap: _signInWithGoogle,
-                                        child: SvgPicture.asset(
-                                          'assets/imag/iteams/google_icon.svg',
-                                          width: 32,
-                                          height: 32,
-                                        ),
-                                      ),
-                                    ),
-                                    //------------- X icon -----------
-                                    InkWell(
-                                      child: SvgPicture.asset(
-                                        'assets/imag/iteams/x_icon.svg',
-                                        colorFilter: ColorFilter.mode(
-                                            const Color.fromARGB(105, 255, 255, 255),
-                                            BlendMode.lighten),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+
+                              // Other UI Elements...
+
+                          Container(
+                      width: WidthSize / 1.35,
+                      padding: EdgeInsets.only(right: 10, left: 10),
+                  child: Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomCheckbox(),
+                      InkWell(
+                        child: Text(
+                          "Forget password?",
+                          style: TextStyle(
+                            color: ProjectColors.mainColor,
+                            decoration: TextDecoration.underline,
+                            decorationColor:
+                            ProjectColors.mainColor,
                           ),
                         ),
                       )
                     ],
                   ),
                 ),
-                //--------------------------- Bottom_Ellipse -----------
-                Positioned(
+                SizedBox(height: HeightSize / 50),
+                GestureDetector(
+                  onTap: () async {
+                    appState.signInUpdate(true);
+                    if (_formKey.currentState?.validate() ?? false) {
+                      _signInWithEmailPassword();
+                    }
+                  },
                   child: Container(
-                    width: WidthSize,
-                    height: HeightSize / 10,
-                    child: SvgPicture.asset(
-                      'assets/imag/iteams/Bottom_Ellipse.svg',
-                      semanticsLabel: 'Bottom_Ellipse',
-                      fit: BoxFit.fill,
+                    width: WidthSize / 2.5,
+                    height: HeightSize / 20,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.cyanAccent.shade200,
+                          Colors.teal.shade400
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.cyanAccent.shade100
+                              .withOpacity(0.5),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                          offset: const Offset(0, 0),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Sign in',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: WidthSize / 22),
+                      ),
                     ),
                   ),
-                  left: 0,
-                  bottom: 0,
                 ),
+                SizedBox(height: HeightSize / 40),
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (s) {
+                      return const SignUpPage();
+                    }));
+                  },
+                  child: Text(
+                    "Create New Account",
+                    style: TextStyle(
+                      color: ProjectColors.mainColor,
+                      decoration: TextDecoration.underline,
+                      decorationColor: ProjectColors.mainColor,
+                    ),
+                  ),
+                ),
+                SizedBox(height: HeightSize / 100),
+                Text(
+                  "OR",
+                  style: TextStyle(
+                    color: ProjectColors.mainColor,
+                  ),
+                ),
+                SizedBox(height: HeightSize / 100),
+                GradientText(
+                  text: 'Sign in With',
+                  size: WidthSize / 22,
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF419389),
+                      Color(0xFF4DF1DD)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                SizedBox(height: HeightSize / 100),
+                Container(
+                  width: WidthSize / 1.5,
+                  child: Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceAround,
+                    children: [
+                      InkWell(
+                        child: SvgPicture.asset(
+                          'assets/imag/iteams/facebook_icon.svg',
+                          colorFilter:
+                          ColorFilter.linearToSrgbGamma(),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 8),
+                        child: GestureDetector(
+                          onTap: _signInWithGoogle,
+                          child: SvgPicture.asset(
+                            'assets/imag/iteams/google_icon.svg',
+                            width: 32,
+                            height: 32,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        child: SvgPicture.asset(
+                          'assets/imag/iteams/x_icon.svg',
+                          colorFilter: ColorFilter.mode(
+                              const Color.fromARGB(105, 255, 255, 255),
+                              BlendMode.lighten),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.qr_code,size: 35,),
+                        onPressed: () async {
+                          await openScanUI(context);  // This is how you properly handle async functions in callbacks
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),

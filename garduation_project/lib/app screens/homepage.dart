@@ -145,12 +145,7 @@ class _HomePageState extends State<HomePage> {
                                 onTap: () {
                                   Navigator.pushNamed(context, 'SettingPage');
                                 },
-                                child: SvgPicture.asset(
-                                  'assets/imag/iteams/adjustments.svg',
-                                  semanticsLabel: 'adjustments',
-                                  width: WidthSize / 25,
-                                  height: HeightSize / 25,
-                                ),
+                                child: Icon(Icons.design_services_sharp,color:  Color(0xFF419389),)
                               ),
                             ],
                           ),
